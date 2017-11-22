@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  horaInicio: 2017-11-22 03:33:52
+  horaFinal: 2017-11-22 03:33:52
+  tiempoServicioPromedio: 1.5
+  tiempoColaPromedio: 1.5
+  existenciaCiclasPromedio: 1
+
+two:
+  horaInicio: 2017-11-22 03:33:52
+  horaFinal: 2017-11-22 03:33:52
+  tiempoServicioPromedio: 1.5
+  tiempoColaPromedio: 1.5
+  existenciaCiclasPromedio: 1

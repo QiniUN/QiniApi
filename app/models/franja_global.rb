@@ -1,0 +1,2 @@
+class FranjaGlobal < ApplicationRecord
+end

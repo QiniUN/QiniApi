@@ -1,0 +1,2 @@
+class EsperaActual < ApplicationRecord
+end
