@@ -4,7 +4,7 @@ class CreateFranjaGlobals < ActiveRecord::Migration[5.1]
       t.string :horaInicio
       t.string :horaFinal
       t.float :tiempoServicioPromedio
-      t.float :tiempoColaPromedio
+      t.float :tiempoLlegadaPromedio
       t.integer :existenciaCiclasPromedio
       t.integer :idStation
 

@@ -1,22 +1,20 @@
 class StationController < ApplicationController
   def getStation
     @idEstacion = Integer(params["idEstacion"])
+    @nombreEstacion = Station.find(@idEstacion).name
     @franja = params["horario"].split( ' - ' )
 
     # Lambda
-    @llegadaProm = EsperaActual.where( "idStation = ? AND horaInicio = ? ", @idEstacion, @franja[0] ).average(:duracionEspera)
-
-    @global = FranjaGlobal.where( "idStation = ? AND horaInicio = ? ", @idEstacion, @franja[0] )
+    @llegadaProm = EsperaActual.where( "idStation = ? AND horaInicio = ? ", @idEstacion, @franja[0] ).average(:tiempoLlegada)
 
     # Miu
-    @servicioProm = @global[0].tiempoServicioPromedio
-    @servicioProm = 1 / @servicioProm
+    @servicioProm = EsperaActual.where( "idStation = ? AND horaInicio = ? ", @idEstacion, @franja[0] ).average(:tiempoServicio)
 
     # C
     @servidores = Station.find(@idEstacion).servidores
 
     @Lq = nil
-    if @llegadaProm != nil
+    if @llegadaProm != nil && @servicioProm != nil
       @r = @llegadaProm/@servicioProm
       @ro = @r/@servidores
 
@@ -34,18 +32,20 @@ class StationController < ApplicationController
 
       # W
       @W = (@Lq / @llegadaProm) + (1/@servicioProm)
+
     end
 
     @esperaPromedio = FranjaGlobal.where("idStation = ? AND horaInicio = ? ", @idEstacion, @franja[0])
-    @esperaPromedio = @esperaPromedio[0].tiempoColaPromedio + @servicioProm
+    @esperaPromedio = @esperaPromedio[0].tiempoLlegadaPromedio + @esperaPromedio[0].tiempoServicioPromedio
 
-    @data = { esperaActual: @W, esperaPromedio: @esperaPromedio, fila: @Lq, ciclas: 10, llprom: @llegadaProm, sprom: @servicioProm }
+    @data = { nombreEstacion:  @nombreEstacion, esperaActual: @W, esperaPromedio: @esperaPromedio, fila: @Lq, ciclas: 10 }
     render json: @data
   end
 
   def postStation
     @id = Integer( params[:id] )
-    @tiempo = Float(params[:tiempo])
+    @tiempoServicio = Float(params[:tiempoServicio])
+    @tiempoCola = Float(params[:tiempoCola])
     @fila = Integer(params[:fila])
     @servidores = Integer(params[:servidores])
     @franja = params[:franja].split(' - ')
@@ -54,15 +54,14 @@ class StationController < ApplicationController
     @station.servidores = @servidores
     @guarda = @station.save != nil
 
-    @global = FranjaGlobal.where( "idStation = ? AND horaInicio = ? ", @id, @franja[0] )
-    @servicio = @global[0].tiempoServicioPromedio
 
     #@cola = @tiempo #- @servicio
-    @llegada = @fila / @tiempo
+    @llegada = @fila / ( @tiempoCola + @tiempoServicio )
+    @servicio = 1/@tiempoServicio
 
-    @guarda = @guarda && ( EsperaActual.create( duracionEspera: @llegada, idStation: @id, horaInicio: @franja[0] ) != nil )
+    @guarda = @guarda && ( EsperaActual.create( tiempoLlegada: @llegada, tiempoServicio: @servicio, idStation: @id, horaInicio: @franja[0] ) != nil )
 
-    render json: { guarda: @guarda, tiempo: @tiempo, llegada: @llegada }
+    render json: { guarda: @guarda }
   end
 
   private
