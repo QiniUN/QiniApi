@@ -10,6 +10,7 @@ class StationController < ApplicationController
 
     # Miu
     @servicioProm = @global[0].tiempoServicioPromedio
+    @servicioProm = 1 / @servicioProm
 
     # C
     @servidores = Station.find(@idEstacion).servidores
@@ -38,7 +39,7 @@ class StationController < ApplicationController
     @esperaPromedio = FranjaGlobal.where("idStation = ? AND horaInicio = ? ", @idEstacion, @franja[0])
     @esperaPromedio = @esperaPromedio[0].tiempoColaPromedio + @servicioProm
 
-    @data = { esperaActual: @W, esperaPromedio: @esperaPromedio, fila: @Lq, ciclas: 10 }
+    @data = { esperaActual: @W, esperaPromedio: @esperaPromedio, fila: @Lq, ciclas: 10, llprom: @llegadaProm, sprom: @servicioProm }
     render json: @data
   end
 
@@ -56,8 +57,8 @@ class StationController < ApplicationController
     @global = FranjaGlobal.where( "idStation = ? AND horaInicio = ? ", @id, @franja[0] )
     @servicio = @global[0].tiempoServicioPromedio
 
-    @cola = @tiempo - @servicio
-    @llegada = @fila / @cola
+    #@cola = @tiempo #- @servicio
+    @llegada = @fila / @tiempo
 
     @guarda = @guarda && ( EsperaActual.create( duracionEspera: @llegada, idStation: @id, horaInicio: @franja[0] ) != nil )
 
