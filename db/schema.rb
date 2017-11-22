@@ -15,13 +15,14 @@ ActiveRecord::Schema.define(version: 20171122083438) do
   create_table "espera_actuals", force: :cascade do |t|
     t.float "duracionEspera"
     t.integer "idStation"
+    t.string "horaInicio"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "franja_globals", force: :cascade do |t|
-    t.time "horaInicio"
-    t.time "horaFinal"
+    t.string "horaInicio"
+    t.string "horaFinal"
     t.float "tiempoServicioPromedio"
     t.float "tiempoColaPromedio"
     t.integer "existenciaCiclasPromedio"
