@@ -3,4 +3,6 @@ Rails.application.routes.draw do
   get "station/getStation/:idEstacion/:horario" => "station#getStation"
 
   post "station/postStation" => "station#postStation"
+
+  post "station/postBikes" => "station#postBikes"
 end

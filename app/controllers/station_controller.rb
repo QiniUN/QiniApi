@@ -2,6 +2,7 @@ class StationController < ApplicationController
   def getStation
     @idEstacion = Integer(params["idEstacion"])
     @nombreEstacion = Station.find(@idEstacion).name
+    @ciclas = Station.find(@idEstacion).bicicletas
     @franja = params["horario"].split( ' - ' )
 
     # Lambda
@@ -38,7 +39,7 @@ class StationController < ApplicationController
     @esperaPromedio = FranjaGlobal.where("idStation = ? AND horaInicio = ? ", @idEstacion, @franja[0])
     @esperaPromedio = @esperaPromedio[0].tiempoLlegadaPromedio + @esperaPromedio[0].tiempoServicioPromedio
 
-    @data = { nombreEstacion:  @nombreEstacion, esperaActual: @W, esperaPromedio: @esperaPromedio, fila: @Lq, ciclas: 10 }
+    @data = { nombreEstacion:  @nombreEstacion, esperaActual: @W, esperaPromedio: @esperaPromedio, fila: @Lq, ciclas: @ciclas }
     render json: @data
   end
 
@@ -54,18 +55,48 @@ class StationController < ApplicationController
     @station.servidores = @servidores
     @guarda = @station.save != nil
 
+    @llegada = Float(@fila) / ( @tiempoCola )
+    @servicio = 1.0/@tiempoServicio
 
-    #@cola = @tiempo #- @servicio
-    @llegada = @fila / ( @tiempoCola + @tiempoServicio )
-    @servicio = 1/@tiempoServicio
+    if( @llegada > @servicio )
+      @llegada = @servicio - ( @servicio * 0.4 )
+    end
 
     @guarda = @guarda && ( EsperaActual.create( tiempoLlegada: @llegada, tiempoServicio: @servicio, idStation: @id, horaInicio: @franja[0] ) != nil )
 
     render json: { guarda: @guarda }
   end
 
+  def postBikes
+    @CALLE_45 = Integer( params[:CALLE_45] )
+    @CALLE_53 = Integer( params[:CALLE_53] )
+    @CYT      = Integer( params[:CYT] )
+    @CALLE_26 = Integer( params[:CALLE_26] )
+    @URIEL    = Integer( params[:URIEL_GUTIERREZ] )
+
+    @station = Station.find(1)
+    @station.bicicletas = @CALLE_26
+    @station.save
+
+    @station = Station.find(2)
+    @station.bicicletas = @CALLE_45
+    @station.save
+
+    @station = Station.find(3)
+    @station.bicicletas = @CALLE_53
+    @station.save
+
+    @station = Station.find(4)
+    @station.bicicletas = @CYT
+    @station.save
+
+    @station = Station.find(5)
+    @station.bicicletas = @URIEL
+    @station.save
+  end
+
   private
   def postParams
-    params.require(  ).permit( :id, :tiempo, :fila, :servidores )
+    params.require(  ).permit( :id, :tiempo, :fila, :servidores, :CALLE_45, :CALLE_53, :CYT, :CALLE_26, :URIEL_GUTIERREZ )
   end
 end

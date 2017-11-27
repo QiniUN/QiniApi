@@ -5,6 +5,7 @@ class CreateEsperaActuals < ActiveRecord::Migration[5.1]
       t.float   :tiempoLlegada
       t.integer :idStation
       t.string  :horaInicio
+      
       t.timestamps
     end
   end
